@@ -3,17 +3,23 @@
             [compojure.route :refer [resources]]
             [ring.util.response :refer [resource-response response not-found]]
             [ring.middleware.reload :refer [wrap-reload]])
-  (:import (java.net InetAddress)))
+  (:import (java.net InetAddress Socket InetSocketAddress)))
 
-(defn ping
-  [host]
-  (.isReachable (InetAddress/getByName host) 1000))
+
+(defn reachable?
+  [addr open-port]
+  (try
+    (let [socket (Socket.)]
+      (.connect socket (InetSocketAddress. ^Integer addr ^String open-port) 1000))
+    true
+    (catch Exception e
+      false)))
 
 
 (defroutes routes
            (GET "/" [] (resource-response "index.html" {:root "public"}))
            (GET "/ping/:url" [url] (response [{:url    url
-                                               :status "up"}]))
+                                               :status (if (reachable? url 80) :up :down)}]))
            (resources "/")
            (not-found "Page not found"))
 
