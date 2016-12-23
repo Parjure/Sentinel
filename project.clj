@@ -11,6 +11,7 @@
                  [metosin/compojure-api "1.1.9"]
                  [day8.re-frame/http-fx "0.1.3"]
                  [ring "1.4.0"]
+                 [consul-clojure "0.1.0"]
                  [cljs-ajax "0.5.8"]]
 
 

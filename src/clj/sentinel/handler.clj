@@ -2,7 +2,8 @@
   (:require [compojure.core :refer [GET defroutes]]
             [compojure.route :refer [resources]]
             [ring.util.response :refer [resource-response response not-found]]
-            [ring.middleware.reload :refer [wrap-reload]])
+            [ring.middleware.reload :refer [wrap-reload]]
+            [sentinel.connector.consul.consul :as consul-connector])
   (:import (java.net InetAddress Socket InetSocketAddress)))
 
 
@@ -18,6 +19,17 @@
 
 (defroutes routes
            (GET "/" [] (resource-response "index.html" {:root "public"}))
+           (GET "/ping/consul/services" [] (response (pr-str (->> (consul-connector/registered-services)
+                                                                  (map (fn [serviceID]
+                                                                         {:server-name serviceID
+                                                                          :status      (if (consul-connector/alive? serviceID)
+                                                                                         "up"
+                                                                                         "down")}))
+                                                                  (vec)))))
+           (GET "/ping/consul/services/:serviceID" [serviceID] (response [{:url    (str "consul/services/" serviceID)
+                                                                           :status (if (consul-connector/alive? serviceID)
+                                                                                     "up"
+                                                                                     "down")}]))
            (GET "/ping/:url" [url] (response [{:url    url
                                                :status (if (reachable? url 80) :up :down)}]))
            (resources "/")

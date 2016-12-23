@@ -1,6 +1,7 @@
 (ns sentinel.views
   (:require [re-frame.core :as re-frame]
-            [re-com.core :as re-com]))
+            [re-com.core :as re-com]
+            [reagent.core :as reagent]))
 
 (defn title []
   [re-com/title
@@ -33,6 +34,9 @@
               [re-com/button
                :label "add"
                :on-click #(re-frame/dispatch [:add-server])]
+              [re-com/button
+               :label "@Consul"
+               :on-click #(re-frame/dispatch [:read-consul])]
               ]]
   )
 
