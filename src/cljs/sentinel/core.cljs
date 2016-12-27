@@ -19,6 +19,13 @@
   (reagent/render [views/main-panel]
                   (.getElementById js/document "app")))
 
+(defn dispatch-timer-event
+  []
+  (let [now (js/Date.)]
+    (re-frame/dispatch [:refresh-all now])))
+
+(defonce do-timer (js/setInterval dispatch-timer-event 3000))
+
 (defn ^:export init []
   (re-frame/dispatch-sync [:initialize-db])
   (dev-setup)
