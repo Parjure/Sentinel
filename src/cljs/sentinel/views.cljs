@@ -1,27 +1,27 @@
 (ns sentinel.views
   (:require [re-frame.core :as re-frame]
-            [re-com.core :as re-com]
-            [reagent.core :as reagent]))
+            [re-com.core :as re-com]))
 
 (defn title []
   [re-com/title
    :label (str "Sentinel")
    :level :level1])
 
+(defn up? [status]
+  (= status :up))
+
 (defn server-box [name url]
-  (let [_      (println "asking for " name " & " url)
-        status (re-frame/subscribe [:get-server-status [name url]])]
+  (let [status (re-frame/subscribe [:get-server-status [name url]])
+        up? (up? @status)]
     [re-com/v-box
-     :style {:background-color "lightgray"}
-     :margin "15px"
-     :padding "10px"
-     :children [[re-com/title :label name :level :level1]
-                [re-com/title :label @status]]]))
+     :class (if up? "success-bg" "alert-bg")
+     :size "auto"
+     :align-self (if up? :end :stretch)
+     :align :center
+     :children [[re-com/title :label name :level (if up? :level3 :level1) :style {:color "white"}]]]))
 
 (defn add-bar []
   [re-com/h-box
-   ;:size "auto"
-   :style {}
    :children [
               [re-com/input-text
                :placeholder "server name"
@@ -34,6 +34,7 @@
               [re-com/button
                :label "add"
                :on-click #(re-frame/dispatch [:add-server])]
+              [re-com/gap :size "50px"]
               [re-com/button
                :label "@Consul"
                :on-click #(re-frame/dispatch [:read-consul])]
@@ -41,10 +42,16 @@
   )
 
 (defn servers []
-  (let [servers (re-frame/subscribe [:get-servers])]
-    [re-com/h-box
-     :children [(for [[server-name server-url] @servers]
-                  [server-box server-name server-url])]]))
+  (let [servers (re-frame/subscribe [:get-servers])
+        server-groups (partition-all 10 @servers)]
+    [re-com/v-box
+     :max-width "100%"
+     :class "success-bg"
+     :children [(for [server-group server-groups]
+                  [re-com/h-box
+                   :height "100px"
+                   :children [(for [[server-name server-url] server-group]
+                                [server-box server-name server-url])]])]]))
 
 (defn main-panel []
   (fn []
@@ -52,4 +59,5 @@
      :height "100%"
      :children [[title]
                 [add-bar]
+                [re-com/gap :size "20px"]
                 [servers]]]))

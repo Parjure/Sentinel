@@ -22,14 +22,10 @@
            (GET "/ping/consul/services" [] (response (pr-str (->> (consul-connector/registered-services)
                                                                   (map (fn [serviceID]
                                                                          {:server-name serviceID
-                                                                          :status      (if (consul-connector/alive? serviceID)
-                                                                                         "up"
-                                                                                         "down")}))
+                                                                          :status      (if (consul-connector/alive? serviceID) :up :down)}))
                                                                   (vec)))))
            (GET "/ping/consul/services/:serviceID" [serviceID] (response [{:url    (str "consul/services/" serviceID)
-                                                                           :status (if (consul-connector/alive? serviceID)
-                                                                                     "up"
-                                                                                     "down")}]))
+                                                                           :status (if (consul-connector/alive? serviceID) :up :down)}]))
            (GET "/ping/:url" [url] (response [{:url    url
                                                :status (if (reachable? url 80) :up :down)}]))
            (resources "/")
