@@ -3,9 +3,15 @@
             [re-com.core :as re-com]))
 
 (defn title []
-  [re-com/title
-   :label (str "Sentinel")
-   :level :level1])
+  [re-com/v-box
+   :align :center
+   :children [[:img {:src   "img/sentinel-logo.png"
+                     :height "100px"
+                     :width "100px"}]
+              [re-com/title
+               :label (str "Sentinel")
+               :level :level1
+               :style {:margin-top "0px"}]]])
 
 (defn up? [status]
   (= status :up))
